@@ -1,27 +1,62 @@
 <html>
 <body>
-
-<h1>我是<span id="myname">.</h1>
-    <p>我的学号是<span id="mynumber">.</span>
-        <span><input type="button" value="下一步" id="inpu"></span>
-        <img src="matrix.png"/>
-        <img id="logo" src="ll.jpg" style="border-radius: 10px 20px 40px 80px"/>
+<h1>我叫<span id="myname"></span></h1>
+    <p>我的学号是<span id="mynumber"></span>
     </p>
+    <a id="alogin" href="login.html">去登录</a>
+    <a id="alogout" href="#">去注销</a>
+    <input type="text" id="lvlitext">
+    <button id="btnAdd" name="addlvli">添加</button>
+    <ul id="ul"></ul>
     <script src="jquery-3.4.1.js"></script>
     <script>
         $(function(){
-            $.get("./data.json",function(result){
-                $("#myname").text(result.myname);
-                $("#mynumber").text(result.mynumber);
+            var callback=function (result){
+                if(!result || !result.myname){
+                    $("#alogout").hide();
+                    $("#lvlitext").hide();
+                    $("#btnAdd").hide();
+                }else{
+                    $("#myname").text(result.myname);
+                    $("#mynumber").text(result.mynumber);
+                    $("#alogin").hide();
+                }
+             }
+             $.ajax({
+                type:"POST",
+                xhrFields: {
+                        withCredentials: true
+                },
+                url:"http://127.0.0.1:8585/userinfo",
+                contentType:"application/json",
+                success:callback
+             });
+            $("#alogout").click(function(){
+                $.ajax({
+                type:"POST",
+                xhrFields: {
+                        withCredentials: true
+                },
+                url:"http://127.0.0.1:8585/logout",
+                success:function(){
+                    location.href="index.html";
+                }
+             });
+            });
+            $.post("http://127.0.0.1:8585/finall",
+                function(result){
+                    for(var i=0;i<result.length;i++){
+                        $("#ul").append("<li>"+ result[i].url+"</li>")
+                    }
+            })
+            $("#btnAdd").click(function(){
+                $.post("http://127.0.0.1:8585/addlvli",
+                    {lvli:$("#lvlitext").val()},
+                    function(){
+                        location.href="index.html"; 
+                    })
             })
         })
-        $("#inpu").click(function(){
-            $.get("./data1.json",function(result){
-                $("#myname").text(result.myname);
-                $("#mynumber").text(result.mynumber);
-            })
-        })
-
     </script>
 </body>
 </html>
